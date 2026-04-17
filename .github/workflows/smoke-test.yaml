@@ -1,0 +1,31 @@
+name: Smoke Integration Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  integration-tests:
+    name: Run Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GITHUB_ACTOR: ${{ secrets.PACKAGES_RW_ACTOR }}
+      GITHUB_TOKEN: ${{ secrets.PACKAGES_RW_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # --- Run integration tests ---
+      - name: Run Maven verify
+        run: ./mvnw -s settings.xml verify
