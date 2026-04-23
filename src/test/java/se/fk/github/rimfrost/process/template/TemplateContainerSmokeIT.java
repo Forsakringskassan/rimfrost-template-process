@@ -1,4 +1,4 @@
-package se.fk.github.rimfrost.vardavhusdjur;
+package se.fk.github.rimfrost.process.template;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
