@@ -1,4 +1,4 @@
-package se.fk.github.rimfrost.vardavhusdjur;
+package se.fk.github.rimfrost.process.template;
 
 import java.io.InputStream;
 import java.util.Properties;
