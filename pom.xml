@@ -9,6 +9,7 @@
   </parent>
 
   <groupId>se.fk.github.rimfrost</groupId>
+  <!-- TODO Replace artifact id with one that is unique for the process -->
   <artifactId>rimfrost-template-process</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <properties>
