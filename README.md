@@ -1,6 +1,6 @@
 # Mallprojekt för Rimfrost process
 
-Det här ett mall projekt för att skapa en övergripande flödesprocess för handläggning i rimfrost-projektet.
+Det här är ett mall projekt för att skapa en övergripande flödesprocess för handläggning i rimfrost-projektet.
 
 En flödesprocess är en kogito-process för att producera ett resultat baserat på resultat från en eller flera underprocesser, där underprocesserna består av underordnade flödesprocesser eller regelprocesser.
 
@@ -38,7 +38,7 @@ och pom.xml för exempel på dessa.
 Tre github workflows är inkluderade i projektet, maven-ci, maven-release och smoke-test.
 
 maven-release skapar som del av sitt flöde en docker image.
-Den publiseras till försäkringskassans [repository](https://github.com/Forsakringskassan/repository).
+Den publiceras till försäkringskassans [repository](https://github.com/Forsakringskassan/repository).
 
 ## Exempel implementation
 Se [rimfrost-process-vah](https://github.com/Forsakringskassan/rimfrost-process-vah) för en färdig implementation av en flödesprocess.
