@@ -93,13 +93,13 @@
     <dependency>
       <groupId>se.fk.github.rimfrost.regel.subprocess</groupId>
       <artifactId>rimfrost-template-regel-subprocess</artifactId>
-      <version>0.0.1</version>
+      <version>1.0.0</version>
     </dependency>
 
     <dependency>
       <groupId>se.fk.rimfrost.framework.process</groupId>
       <artifactId>rimfrost-framework-process</artifactId>
-      <version>0.0.3</version>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
 
