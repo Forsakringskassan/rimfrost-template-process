@@ -2,6 +2,16 @@
 
 Changelog of rimfrost-template-process.
 
+## 1.0.0 (2026-04-29)
+
+### Breaking changes
+
+-  release 1.0 ([90985](https://github.com/Forsakringskassan/rimfrost-template-process/commit/90985d147fdfc86) Lars Persson)  
+
+### Features
+
+-  release 1.0 ([90985](https://github.com/Forsakringskassan/rimfrost-template-process/commit/90985d147fdfc86) Lars Persson)  
+
 ## 0.0.1 (2026-04-29)
 
 ### Breaking changes
