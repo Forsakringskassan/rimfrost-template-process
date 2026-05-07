@@ -17,10 +17,9 @@
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
     <quarkus.platform.version>3.20.3</quarkus.platform.version>
-    <kogito.bom.group-id>org.kie.kogito</kogito.bom.group-id>
-    <kogito.bom.artifact-id>kogito-bom</kogito.bom.artifact-id>
-    <kogito.bom.version>999-SNAPSHOT</kogito.bom.version>
-    <version.org.kie.kogito>999-SNAPSHOT</version.org.kie.kogito>
+    <bamoe.bom.group-id>com.ibm.bamoe</bamoe.bom.group-id>
+    <bamoe.bom.artifact-id>bamoe-bom</bamoe.bom.artifact-id>
+    <bamoe.bom.version>9.1.0.RC1</bamoe.bom.version>
   </properties>
 
   <dependencyManagement>
@@ -33,9 +32,9 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>${kogito.bom.group-id}</groupId>
-        <artifactId>${kogito.bom.artifact-id}</artifactId>
-        <version>${kogito.bom.version}</version>
+        <groupId>${bamoe.bom.group-id}</groupId>
+        <artifactId>${bamoe.bom.artifact-id}</artifactId>
+        <version>${bamoe.bom.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -69,7 +68,7 @@
     <dependency>
       <groupId>org.kie.kogito</groupId>
       <artifactId>kogito-quarkus-test-utils</artifactId>
-      <version>${version.org.kie.kogito}</version>
+      <version>10.2.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
