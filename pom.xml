@@ -19,7 +19,7 @@
     <quarkus.platform.version>3.20.3</quarkus.platform.version>
     <bamoe.bom.group-id>com.ibm.bamoe</bamoe.bom.group-id>
     <bamoe.bom.artifact-id>bamoe-bom</bamoe.bom.artifact-id>
-    <bamoe.bom.version>9.1.0.RC1</bamoe.bom.version>
+    <bamoe.bom.version>9.4.0-ibm-0006</bamoe.bom.version>
   </properties>
 
   <dependencyManagement>
@@ -103,6 +103,17 @@
   </dependencies>
 
   <repositories>
+  <!--
+    TODO - We need a repository with the artifact that isnt localhost.
+
+    If you want to make it work on localhost:
+    Step 1: Pull the image: 'docker pull quay.io/bamoe/maven-repository:9.4.0-ibm-0006'
+    Step 2: Run the maven repo container: 'docker run -d -p 8080:8080 quay.io/bamoe/maven-repository:9.4.0-ibm-0006'
+  -->
+    <repository>
+      <id>bamoe-local</id>
+      <url>http://localhost:8080/</url>
+    </repository>
     <repository>
       <id>github--Forsakringskassan--repository</id>
       <url>https://maven.pkg.github.com/Forsakringskassan/repository</url>
