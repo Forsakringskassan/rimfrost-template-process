@@ -211,7 +211,7 @@ public class TemplateContainerSmokeIT
       HandlaggningRequestMessagePayload payload = new HandlaggningRequestMessagePayload();
       HandlaggningRequestMessageData data = new HandlaggningRequestMessageData();
       data.setHandlaggningId(handlaggningId);
-      payload.setSpecversion(SpecVersion.NUMBER_1_DOT_0);
+      payload.setSpecversion(SpecVersion.V1);
       payload.setId("TestId-001");
       payload.setSource("TestSource-001");
       payload.setType(templateHandlaggningRequestTopic);
