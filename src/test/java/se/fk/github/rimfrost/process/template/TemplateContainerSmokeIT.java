@@ -64,6 +64,7 @@ public class TemplateContainerSmokeIT
    private static final String templateHandlaggningResponseTopic = TestConfig.get("template.handlaggning.responses.topic");
    private static final String regelRequestTopic = TestConfig.get("template.regel.requests.topic");
    private static final String regelResponseTopic = TestConfig.get("template.regel.responses.topic");
+   private static final String regelResponseMessageType = TestConfig.get("template.regel.responses.messageType");
 
    @BeforeAll
    static void setupKafka()
@@ -243,7 +244,7 @@ public class TemplateContainerSmokeIT
       payload.setSpecversion(request.getSpecversion());
       payload.setId(request.getId());
       payload.setSource(request.getSource());
-      payload.setType(topic);
+      payload.setType(regelResponseMessageType);
       payload.setTime(OffsetDateTime.now());
       payload.setKogitoparentprociid(request.getKogitoparentprociid());
       payload.setKogitorootprocid(request.getKogitorootprocid());
