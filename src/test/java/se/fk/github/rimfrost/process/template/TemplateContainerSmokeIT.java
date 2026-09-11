@@ -65,6 +65,10 @@ public class TemplateContainerSmokeIT
    private static final String regelRequestTopic = TestConfig.get("template.regel.requests.topic");
    private static final String regelResponseTopic = TestConfig.get("template.regel.responses.topic");
    private static final String regelResponseMessageType = TestConfig.get("template.regel.responses.messageType");
+   private static final String kompletteringRequestTopic = TestConfig.get("template.regel.komplettering.requests.topic");
+   private static final String kompletteringResponseTopic = TestConfig.get("template.regel.komplettering.responses.topic");
+   private static final String kompletteringResponseMessageType = TestConfig
+         .get("template.regel.komplettering.responses.messageType");
 
    @BeforeAll
    static void setupKafka()
@@ -81,6 +85,8 @@ public class TemplateContainerSmokeIT
          createTopic(templateHandlaggningResponseTopic, 1, (short) 1);
          createTopic(regelRequestTopic, 1, (short) 1);
          createTopic(regelResponseTopic, 1, (short) 1);
+         createTopic(kompletteringRequestTopic, 1, (short) 1);
+         createTopic(kompletteringResponseTopic, 1, (short) 1);
       }
       catch (Exception e)
       {
@@ -102,10 +108,20 @@ public class TemplateContainerSmokeIT
    void TestProcessSmoke() throws Exception
    {
       var handlaggningId = UUID.randomUUID().toString();
-      var responderRegel = startKafkaResponder(regelRequestTopic, regelResponseTopic, Utfall.JA);
+      var responderRegel = startKafkaResponder(regelRequestTopic, regelResponseTopic, regelResponseMessageType, Utfall.JA);
+      var responderKomplettering = startKafkaResponder(kompletteringRequestTopic, kompletteringResponseTopic,
+            kompletteringResponseMessageType, Utfall.JA);
 
       // Send Handlaggning request to start workflow
       sendProcessHandlaggningRequest(handlaggningId, "A1");
+
+      // Verify komplettering request message produced by process
+      var kompletteringRequest = readKafkaRequestMessage(kompletteringRequestTopic);
+      var kompletteringRequestMessagePayload = mapper.readValue(kompletteringRequest, RegelRequestMessagePayload.class);
+      assertEquals(handlaggningId, kompletteringRequestMessagePayload.getData().getHandlaggningId());
+
+      // Wait for kafka responder to complete
+      responderKomplettering.get(topicTimeout, TimeUnit.SECONDS);
 
       // Verify regel request message produced by process
       var regelRequest = readKafkaRequestMessage(regelRequestTopic);
@@ -169,7 +185,7 @@ public class TemplateContainerSmokeIT
       }
    }
 
-   private CompletableFuture<Void> startKafkaResponder(String requesttopic, String responseTopic, Utfall utfall)
+   private CompletableFuture<Void> startKafkaResponder(String requesttopic, String responseTopic, String type, Utfall utfall)
    {
       return CompletableFuture.runAsync(() -> {
          try (KafkaConsumer<String, String> consumer = createConsumer())
@@ -196,7 +212,7 @@ public class TemplateContainerSmokeIT
             responseData.setHandlaggningId(handlaggningId);
             responseData.setUtfall(utfall);
 
-            sendRegelResponse(request, responseTopic, responseData);
+            sendRegelResponse(request, responseTopic, type, responseData);
             System.out.printf("Sent mock Kafka response for handlaggningId=%s%n on topic %s", handlaggningId,
                   responseTopic);
          }
@@ -238,13 +254,14 @@ public class TemplateContainerSmokeIT
 
    private void sendRegelResponse(RegelRequestMessagePayload request,
          String topic,
+         String type,
          RegelResponseMessagePayloadData messageData) throws Exception
    {
       RegelResponseMessagePayload payload = new RegelResponseMessagePayload();
       payload.setSpecversion(request.getSpecversion());
       payload.setId(request.getId());
       payload.setSource(request.getSource());
-      payload.setType(regelResponseMessageType);
+      payload.setType(type);
       payload.setTime(OffsetDateTime.now());
       payload.setKogitoparentprociid(request.getKogitoparentprociid());
       payload.setKogitorootprocid(request.getKogitorootprocid());
