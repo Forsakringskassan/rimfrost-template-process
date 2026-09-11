@@ -195,7 +195,7 @@
         <bpmn2:targetRef>handlaggningId</bpmn2:targetRef>
       </bpmn2:dataOutputAssociation>
     </bpmn2:serviceTask>
-    <bpmn2:callActivity id="_15F0C341-92D9-416A-A4AE-C3E218D3FF8D" drools:independent="false" drools:waitForCompletion="true" name="TODO: Lägg till Regler" calledElement="template_regel_id">
+    <bpmn2:callActivity id="_15F0C341-92D9-416A-A4AE-C3E218D3FF8D" drools:independent="false" drools:waitForCompletion="true" name="TODO: Lägg till Regler" calledElement="template_id">
       <bpmn2:extensionElements>
         <drools:onExit-script scriptFormat="">
           <drools:script></drools:script>
