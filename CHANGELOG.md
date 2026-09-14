@@ -2,6 +2,32 @@
 
 Changelog of rimfrost-template-process.
 
+## 1.1.1 (2026-09-14)
+
+### Bug Fixes
+
+-  correct package ([55431](https://github.com/Forsakringskassan/rimfrost-template-process/commit/55431105ddd4bb5) Nils Elveros)  
+-  update to contain komplettering ([fe6bd](https://github.com/Forsakringskassan/rimfrost-template-process/commit/fe6bdd2a6d2943f) Nils Elveros)  
+-  update template with errorhandling ([dffd6](https://github.com/Forsakringskassan/rimfrost-template-process/commit/dffd638dc780e05) Nils Elveros)  
+-  Bump pinned quarkus version to 3.27.4.1 ([1e367](https://github.com/Forsakringskassan/rimfrost-template-process/commit/1e367ba4e287b1f) Lars Persson)  
+
+### Dependency updates
+
+- update dependency org.apache.maven.plugins:maven-failsafe-plugin to v3.6.0 ([1bbce](https://github.com/Forsakringskassan/rimfrost-template-process/commit/1bbce03471ba2bd) renovate[bot])  
+- pin dependencies ([b778b](https://github.com/Forsakringskassan/rimfrost-template-process/commit/b778b7b15dec089) renovate[bot])  
+- update dependency org.apache.maven.plugins:maven-dependency-plugin to v3.11.0 ([ca7be](https://github.com/Forsakringskassan/rimfrost-template-process/commit/ca7be47c0895369) renovate[bot])  
+- update dependency org.apache.maven.plugins:maven-failsafe-plugin to v3.5.6 ([77bd3](https://github.com/Forsakringskassan/rimfrost-template-process/commit/77bd3bf2c955f80) renovate[bot])  
+## rimfrost-1.1 (2026-06-04)
+
+### Bug Fixes
+
+-  bump rimfrost-framework-process to 1.5.3 and update SpecVersion constant ([662d2](https://github.com/Forsakringskassan/rimfrost-template-process/commit/662d2addde72bc6) Ulf Slunga)  
+-  Bump dependency versions ([76f26](https://github.com/Forsakringskassan/rimfrost-template-process/commit/76f267ff0a3667d) Lars Persson)  
+-  **deps**  update dependency se.fk.rimfrost.framework.process:rimfrost-framework-process to v1.1.0 ([98cab](https://github.com/Forsakringskassan/rimfrost-template-process/commit/98cab67d4f94adf) renovate[bot])  
+
+### Dependency updates
+
+- update dependency org.apache.maven.plugins:maven-dependency-plugin to v3.10.0 ([a9637](https://github.com/Forsakringskassan/rimfrost-template-process/commit/a963756db485e54) renovate[bot])  
 ## 1.0.0 (2026-04-29)
 
 ### Breaking changes
