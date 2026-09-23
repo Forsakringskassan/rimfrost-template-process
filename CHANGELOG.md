@@ -2,6 +2,12 @@
 
 Changelog of rimfrost-template-process.
 
+## 1.1.2 (2026-09-23)
+
+### Bug Fixes
+
+-  bump rimfrost-framework-process to 1.6.4 ([8f56c](https://github.com/Forsakringskassan/rimfrost-template-process/commit/8f56c46085b2d06) Ulf Slunga)  
+
 ## 1.1.1 (2026-09-14)
 
 ### Bug Fixes
