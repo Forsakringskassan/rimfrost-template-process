@@ -42,6 +42,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Testcontainers
@@ -58,6 +61,13 @@ public class TemplateContainerSmokeIT
    private static final String networkAlias = TestConfig.get("network.alias");
    private static final String smallryeKafkaBootstrapServers = networkAlias + ":9093";
    private static Network network = Network.newNetwork();
+
+   //TODO Change to match PROCESSVY_URL in application.properties
+   private static final String processvyUrl = "/process/template";
+   //TODO Change to processId in processbeskrivning.json
+   private static final String processId = "template";
+   //TODO Change to an aktivitets-ID from the process's BPMN file
+   private static final String aktivitetId = "a0403d8d-ce42-46b2-967d-e0d2d0fe3a5b";
 
    //TODO replace these topics
    private static final String templateHandlaggningRequestTopic = TestConfig.get("template.handlaggning.requests.topic");
@@ -119,6 +129,7 @@ public class TemplateContainerSmokeIT
       var kompletteringRequest = readKafkaRequestMessage(kompletteringRequestTopic);
       var kompletteringRequestMessagePayload = mapper.readValue(kompletteringRequest, RegelRequestMessagePayload.class);
       assertEquals(handlaggningId, kompletteringRequestMessagePayload.getData().getHandlaggningId());
+      assertEquals(processvyUrl, kompletteringRequestMessagePayload.getData().getProcessvyUrl());
 
       // Wait for kafka responder to complete
       responderKomplettering.get(topicTimeout, TimeUnit.SECONDS);
@@ -127,6 +138,7 @@ public class TemplateContainerSmokeIT
       var regelRequest = readKafkaRequestMessage(regelRequestTopic);
       var regelRequestMessagePayload = mapper.readValue(regelRequest, RegelRequestMessagePayload.class);
       assertEquals(handlaggningId, regelRequestMessagePayload.getData().getHandlaggningId());
+      assertEquals(processvyUrl, regelRequestMessagePayload.getData().getProcessvyUrl());
 
       // Wait for kafka responder to complete
       responderRegel.get(topicTimeout, TimeUnit.SECONDS);
@@ -136,6 +148,22 @@ public class TemplateContainerSmokeIT
       var handlaggningRequestMessagePayload = mapper.readValue(processResponse, HandlaggningResponseMessagePayload.class);
       assertEquals(handlaggningId, handlaggningRequestMessagePayload.getData().getHandlaggningId());
       assertEquals("GODKÄND", handlaggningRequestMessagePayload.getData().getResultat());
+   }
+
+   //TODO Remove this test if the process has no processvy
+   @Test
+   void TestProcessvySteg()
+   {
+      given()
+            .baseUri("http://" + process.getHost())
+            .port(process.getMappedPort(8080))
+            .queryParam("aktivitetId", aktivitetId)
+            .when()
+            .get("/processvy/steg")
+            .then()
+            .statusCode(200)
+            .body("processId", equalTo(processId))
+            .body("steg.status", hasItem("PAGAR"));
    }
 
    private String readKafkaRequestMessage(String topic)
@@ -167,6 +195,7 @@ public class TemplateContainerSmokeIT
       //noinspection resource
       process = new GenericContainer<>(DockerImageName.parse(testImage))
             .withNetwork(network)
+            .withExposedPorts(8080)
             .withEnv("MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_BOOTSTRAP_SERVERS", smallryeKafkaBootstrapServers);
       process.start();
    }
