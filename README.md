@@ -21,6 +21,17 @@ Projektet innehåller ett antal TODO kommentarer som beskriver konfiguration som
 och beroenden som bör ersättas. Se t.ex. src/main/resources/application.properties
 och pom.xml för exempel på dessa.
 
+## Processvy
+
+En process kan ha en processvy (stegindikatorn) som visar handläggaren var i processen en uppgift befinner sig. Mallen innehåller ett exempel med två delar:
+
+- Processvy-länken `PROCESSVY_URL` i [application.properties](src/main/resources/application.properties), som skickas med i regelanropen.
+- Processbeskrivningen [processbeskrivning.json](src/main/resources/processbeskrivning.json) bredvid `template_process.bpmn`, som listar processens steg och vilka aktivitets-ID:n som hör till varje steg. Stegen hämtas med `GET /processvy/steg?aktivitetId={uuid}`.
+
+Anpassa länken och processbeskrivningen till processen. Varje aktivitets-ID i BPMN-filen ska höra till ett steg, och `TemplateProcessbeskrivningTest` går sönder om något saknas. Mallens BPMN-fil heter `template_process.bpmn` så att den inte krockar med `template.bpmn` i mallens regelunderprocess, som också hamnar på classpathen. Formatet beskrivs i [rimfrost-framework-process](https://github.com/Forsakringskassan/rimfrost-framework-process#processvy).
+
+Båda delarna är valfria. Ska processen inte ha någon processvy tar du bort `PROCESSVY_URL`, `processbeskrivning.json`, `TemplateProcessbeskrivningTest` och kontrollen av `processvyUrl` i `TemplateContainerSmokeIT`. Processen startar och skickar regelanrop som vanligt, bara utan processvy.
+
 ## Bygg projektet
 
 `./mvnw -s settings.xml clean compile`
