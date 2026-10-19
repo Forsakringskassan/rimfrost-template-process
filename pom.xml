@@ -20,10 +20,18 @@
     <kogito.bom.artifact-id>kogito-bom</kogito.bom.artifact-id>
     <kogito.bom.version>999-SNAPSHOT</kogito.bom.version>
     <version.org.kie.kogito>999-SNAPSHOT</version.org.kie.kogito>
+    <rimfrost-framework-process.version>1.0.0-SNAPSHOT</rimfrost-framework-process.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
+      <!-- Regelunderprocesserna drar in en äldre version utan processvyUrl, som framework-process behöver.
+           Kan tas bort när underprocesserna beror på 1.2.0 eller senare. -->
+      <dependency>
+        <groupId>se.fk.rimfrost.framework.regel</groupId>
+        <artifactId>rimfrost-framework-regel-asyncapi</artifactId>
+        <version>1.2.0</version>
+      </dependency>
       <dependency>
         <groupId>${quarkus.platform.group-id}</groupId>
         <artifactId>${quarkus.platform.artifact-id}</artifactId>
@@ -97,7 +105,14 @@
     <dependency>
       <groupId>se.fk.rimfrost.framework.process</groupId>
       <artifactId>rimfrost-framework-process</artifactId>
-      <version>1.6.4</version>
+      <version>${rimfrost-framework-process.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>se.fk.rimfrost.framework.process</groupId>
+      <artifactId>rimfrost-framework-process</artifactId>
+      <version>${rimfrost-framework-process.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
