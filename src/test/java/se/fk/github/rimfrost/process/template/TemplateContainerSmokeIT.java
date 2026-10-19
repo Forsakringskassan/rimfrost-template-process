@@ -43,8 +43,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Testcontainers
@@ -64,6 +64,8 @@ public class TemplateContainerSmokeIT
 
    //TODO Change to match PROCESSVY_URL in application.properties
    private static final String processvyUrl = "/process/template";
+   //TODO Change to processId in processbeskrivning.json
+   private static final String processId = "template";
    //TODO Change to an aktivitets-ID from the process's BPMN file
    private static final String aktivitetId = "a0403d8d-ce42-46b2-967d-e0d2d0fe3a5b";
 
@@ -148,6 +150,7 @@ public class TemplateContainerSmokeIT
       assertEquals("GODKÄND", handlaggningRequestMessagePayload.getData().getResultat());
    }
 
+   //TODO Remove this test if the process has no processvy
    @Test
    void TestProcessvySteg()
    {
@@ -159,8 +162,8 @@ public class TemplateContainerSmokeIT
             .get("/processvy/steg")
             .then()
             .statusCode(200)
-            .body("processId", equalTo("template"))
-            .body("steg.status", contains("PAGAR"));
+            .body("processId", equalTo(processId))
+            .body("steg.status", hasItem("PAGAR"));
    }
 
    private String readKafkaRequestMessage(String topic)

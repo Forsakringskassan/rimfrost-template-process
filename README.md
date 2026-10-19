@@ -30,7 +30,7 @@ En process kan ha en processvy (stegindikatorn) som visar handläggaren var i pr
 
 Anpassa länken och processbeskrivningen till processen. Varje aktivitets-ID i BPMN-filen ska höra till ett steg, och `TemplateProcessbeskrivningTest` går sönder om något saknas. Mallens BPMN-fil heter `template_process.bpmn` så att den inte krockar med `template.bpmn` i mallens regelunderprocess, som också hamnar på classpathen. Formatet beskrivs i [rimfrost-framework-process](https://github.com/Forsakringskassan/rimfrost-framework-process#processvy).
 
-Båda delarna är valfria. Ska processen inte ha någon processvy tar du bort `PROCESSVY_URL`, `processbeskrivning.json`, `TemplateProcessbeskrivningTest` och kontrollen av `processvyUrl` i `TemplateContainerSmokeIT`. Processen startar och skickar regelanrop som vanligt, bara utan processvy.
+Båda delarna är valfria. Ska processen inte ha någon processvy tar du bort `PROCESSVY_URL`, `processbeskrivning.json` och `TemplateProcessbeskrivningTest`, testet `TestProcessvySteg` och kontrollerna av `processvyUrl` i `TemplateContainerSmokeIT`, och beroendet till framework-process test-jar (`<classifier>tests</classifier>`) i `pom.xml`. Processen startar och skickar regelanrop som vanligt, bara utan processvy.
 
 ## Bygg projektet
 
