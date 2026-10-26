@@ -21,6 +21,32 @@ Projektet innehåller ett antal TODO kommentarer som beskriver konfiguration som
 och beroenden som bör ersättas. Se t.ex. src/main/resources/application.properties
 och pom.xml för exempel på dessa.
 
+## Persistens
+
+Processinstanserna sparas i en PostgreSQL-databas med Kogitos JDBC-persistens
+(`kie-addons-quarkus-persistence-jdbc`). Det gör att pågående handläggningar
+överlever omstarter av tjänsten och kan fortsätta när svar från underprocesser
+kommer in.
+
+Konfigurationen finns i `src/main/resources/application.properties`:
+
+| Property | Beskrivning |
+|---|---|
+| `kogito.persistence.type=jdbc` | Aktiverar JDBC-persistens av processinstanser. |
+| `kogito.persistence.proto.marshaller=false` | Processvariabler serialiseras utan protobuf-schema. |
+| `kogito.persistence.query.timeout.millis` | Timeout för databasfrågor. |
+| `kie.flyway.enabled=true` | Kogitos tabeller skapas och migreras av Flyway vid uppstart (`kie-addons-quarkus-flyway`). |
+| `quarkus.datasource.db-kind=postgresql` | Databastyp. |
+
+I prod-profilen läses anslutningen från miljövariabler som måste sättas när tjänsten startas.
+I dev- och test-profilerna startar Quarkus Dev Services en PostgreSQL-container automatiskt.
+
+| Miljövariabel | Beskrivning |
+|---|---|
+| `DB_URL` | JDBC-url, t.ex. `jdbc:postgresql://host:5432/databas` |
+| `DB_USERNAME` | Databasanvändare |
+| `DB_PASSWORD` | Lösenord för databasanvändaren |
+
 ## Bygg projektet
 
 `./mvnw -s settings.xml clean compile`
