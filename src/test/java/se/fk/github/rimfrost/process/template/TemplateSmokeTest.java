@@ -3,9 +3,7 @@ package se.fk.github.rimfrost.process.template;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.apache.kafka.clients.admin.NewTopic;
+import io.quarkus.test.junit.QuarkusTest;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -14,14 +12,8 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.kafka.ConfluentKafkaContainer;
-import org.testcontainers.containers.Network;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 import se.fk.rimfrost.SpecVersion;
 import se.fk.rimfrost.HandlaggningRequestMessageData;
 import se.fk.rimfrost.HandlaggningRequestMessagePayload;
@@ -35,7 +27,6 @@ import se.fk.rimfrost.framework.regel.Utfall;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -44,20 +35,14 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Testcontainers
-public class TemplateContainerSmokeIT
+@QuarkusTest
+class TemplateSmokeTest
 {
 
    private static final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
          .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-   private static ConfluentKafkaContainer kafka;
-   private static GenericContainer<?> process;
-   private static final String kafkaImage = TestConfig.get("kafka.image");
-   private static final String testImage = TestConfig.get("test.image");
    private static final int topicTimeout = TestConfig.getInt("topic.timeout");
-   private static final String networkAlias = TestConfig.get("network.alias");
-   private static final String smallryeKafkaBootstrapServers = networkAlias + ":9093";
-   private static Network network = Network.newNetwork();
+   private static final Duration readTimeout = Duration.ofSeconds(120);
 
    //TODO replace these topics
    private static final String templateHandlaggningRequestTopic = TestConfig.get("template.handlaggning.requests.topic");
@@ -70,53 +55,23 @@ public class TemplateContainerSmokeIT
    private static final String kompletteringResponseMessageType = TestConfig
          .get("template.regel.komplettering.responses.messageType");
 
-   @BeforeAll
-   static void setupKafka()
-   {
-
-      kafka = new ConfluentKafkaContainer(DockerImageName.parse(kafkaImage)
-            .asCompatibleSubstituteFor("apache/kafka"))
-            .withNetwork(network)
-            .withNetworkAliases(networkAlias);
-      kafka.start();
-      try
-      {
-         createTopic(templateHandlaggningRequestTopic, 1, (short) 1);
-         createTopic(templateHandlaggningResponseTopic, 1, (short) 1);
-         createTopic(regelRequestTopic, 1, (short) 1);
-         createTopic(regelResponseTopic, 1, (short) 1);
-         createTopic(kompletteringRequestTopic, 1, (short) 1);
-         createTopic(kompletteringResponseTopic, 1, (short) 1);
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException("Failed to create Kafka topics", e);
-      }
-      setupProcess();
-   }
-
-   @AfterAll
-   static void tearDown()
-   {
-      if (process != null)
-         process.stop();
-      if (kafka != null)
-         kafka.stop();
-   }
+   @ConfigProperty(name = "kafka.bootstrap.servers")
+   String bootstrapServers;
 
    @Test
    void TestProcessSmoke() throws Exception
    {
       var handlaggningId = UUID.randomUUID().toString();
-      var responderRegel = startKafkaResponder(regelRequestTopic, regelResponseTopic, regelResponseMessageType, Utfall.JA);
+      var responderRegel = startKafkaResponder(regelRequestTopic, regelResponseTopic, regelResponseMessageType, Utfall.JA,
+            handlaggningId);
       var responderKomplettering = startKafkaResponder(kompletteringRequestTopic, kompletteringResponseTopic,
-            kompletteringResponseMessageType, Utfall.JA);
+            kompletteringResponseMessageType, Utfall.JA, handlaggningId);
 
       // Send Handlaggning request to start workflow
       sendProcessHandlaggningRequest(handlaggningId, "A1");
 
       // Verify komplettering request message produced by process
-      var kompletteringRequest = readKafkaRequestMessage(kompletteringRequestTopic);
+      var kompletteringRequest = readKafkaMessage(kompletteringRequestTopic, handlaggningId);
       var kompletteringRequestMessagePayload = mapper.readValue(kompletteringRequest, RegelRequestMessagePayload.class);
       assertEquals(handlaggningId, kompletteringRequestMessagePayload.getData().getHandlaggningId());
 
@@ -124,7 +79,7 @@ public class TemplateContainerSmokeIT
       responderKomplettering.get(topicTimeout, TimeUnit.SECONDS);
 
       // Verify regel request message produced by process
-      var regelRequest = readKafkaRequestMessage(regelRequestTopic);
+      var regelRequest = readKafkaMessage(regelRequestTopic, handlaggningId);
       var regelRequestMessagePayload = mapper.readValue(regelRequest, RegelRequestMessagePayload.class);
       assertEquals(handlaggningId, regelRequestMessagePayload.getData().getHandlaggningId());
 
@@ -132,89 +87,74 @@ public class TemplateContainerSmokeIT
       responderRegel.get(topicTimeout, TimeUnit.SECONDS);
 
       // Wait for response from process
-      var processResponse = readKafkaRequestMessage(templateHandlaggningResponseTopic);
-      var handlaggningRequestMessagePayload = mapper.readValue(processResponse, HandlaggningResponseMessagePayload.class);
-      assertEquals(handlaggningId, handlaggningRequestMessagePayload.getData().getHandlaggningId());
-      assertEquals("GODKÄND", handlaggningRequestMessagePayload.getData().getResultat());
+      var processResponse = readKafkaMessage(templateHandlaggningResponseTopic, handlaggningId);
+      var handlaggningResponseMessagePayload = mapper.readValue(processResponse, HandlaggningResponseMessagePayload.class);
+      assertEquals(handlaggningId, handlaggningResponseMessagePayload.getData().getHandlaggningId());
+      assertEquals("GODKÄND", handlaggningResponseMessagePayload.getData().getResultat());
    }
 
-   private String readKafkaRequestMessage(String topic)
+   /**
+    * Reads the first message from {@code topic} that belongs to the given handlaggningId, skipping messages left over
+    * from other tests sharing the same topics.
+    */
+   private String readKafkaMessage(String topic, String expectedHandlaggningId)
    {
-      String bootstrap = kafka.getBootstrapServers().replace("PLAINTEXT://", "");
-      Properties props = new Properties();
-      props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap);
-      props.put(ConsumerConfig.GROUP_ID_CONFIG, "test-consumer-" + System.currentTimeMillis());
-      props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-      props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-      props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-
-      try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props))
+      long deadline = System.currentTimeMillis() + readTimeout.toMillis();
+      try (KafkaConsumer<String, String> consumer = createConsumer())
       {
          System.out.printf("New kafka consumer subscribing to topic: %s%n", topic);
          consumer.subscribe(Collections.singletonList(topic));
-         ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(120));
-
-         if (records.isEmpty())
+         while (System.currentTimeMillis() < deadline)
          {
-            throw new IllegalStateException("No Kafka message received on topic " + topic);
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+            for (var record : records)
+            {
+               if (record.value().contains(expectedHandlaggningId))
+               {
+                  return record.value();
+               }
+            }
          }
-         return records.iterator().next().value();
+         throw new IllegalStateException(
+               "No Kafka message for handlaggningId " + expectedHandlaggningId + " received on topic " + topic);
       }
    }
 
-   private static void setupProcess()
-   {
-      //noinspection resource
-      process = new GenericContainer<>(DockerImageName.parse(testImage))
-            .withNetwork(network)
-            .withEnv("MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_BOOTSTRAP_SERVERS", smallryeKafkaBootstrapServers);
-      process.start();
-   }
-
-   private static void createTopic(String topicName, int numPartitions, short replicationFactor) throws Exception
-   {
-      String bootstrap = kafka.getBootstrapServers().replace("PLAINTEXT://", "");
-      Properties props = new Properties();
-      props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap);
-
-      try (AdminClient admin = AdminClient.create(props))
-      {
-         NewTopic topic = new NewTopic(topicName, numPartitions, replicationFactor);
-         admin.createTopics(List.of(topic)).all().get();
-         System.out.printf("Created topic: %S%n", topicName);
-      }
-   }
-
-   private CompletableFuture<Void> startKafkaResponder(String requesttopic, String responseTopic, String type, Utfall utfall)
+   private CompletableFuture<Void> startKafkaResponder(String requestTopic, String responseTopic, String type, Utfall utfall,
+         String expectedHandlaggningId)
    {
       return CompletableFuture.runAsync(() -> {
+         long deadline = System.currentTimeMillis() + Duration.ofSeconds(topicTimeout).toMillis();
          try (KafkaConsumer<String, String> consumer = createConsumer())
          {
-            consumer.subscribe(Collections.singletonList(requesttopic));
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-            if (records.isEmpty())
+            consumer.subscribe(Collections.singletonList(requestTopic));
+            while (System.currentTimeMillis() < deadline)
             {
-               throw new IllegalStateException("No Kafka message received on " + requesttopic);
-            }
+               ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
+               for (var record : records)
+               {
+                  if (!record.value().contains(expectedHandlaggningId))
+                  {
+                     continue;
+                  }
+                  RegelRequestMessagePayload request = mapper.readValue(record.value(), RegelRequestMessagePayload.class);
+                  RegelRequestMessagePayloadData requestData = request.getData();
+                  if (requestData == null)
+                  {
+                     throw new IllegalStateException("Missing data field in Kafka message: " + record.value());
+                  }
+                  RegelResponseMessagePayloadData responseData = new RegelResponseMessagePayloadData();
+                  responseData.setHandlaggningId(requestData.getHandlaggningId());
+                  responseData.setUtfall(utfall);
 
-            // Deserialize request message into typed payload
-            String message = records.iterator().next().value();
-            RegelRequestMessagePayload request = mapper.readValue(message, RegelRequestMessagePayload.class);
-            // Extract data safely
-            RegelRequestMessagePayloadData requestData = request.getData();
-            if (requestData == null)
-            {
-               throw new IllegalStateException("Missing data field in Kafka message: " + message);
+                  sendRegelResponse(request, responseTopic, type, responseData);
+                  System.out.printf("Sent mock Kafka response for handlaggningId=%s on topic %s%n",
+                        requestData.getHandlaggningId(), responseTopic);
+                  return;
+               }
             }
-            String handlaggningId = requestData.getHandlaggningId();
-            // Create typed response data object
-            RegelResponseMessagePayloadData responseData = new RegelResponseMessagePayloadData();
-            responseData.setHandlaggningId(handlaggningId);
-            responseData.setUtfall(utfall);
-
-            sendRegelResponse(request, responseTopic, type, responseData);
-            System.out.printf("Sent mock Kafka response for handlaggningId=%s%n on topic %s", handlaggningId,
-                  responseTopic);
+            throw new IllegalStateException(
+                  "No Kafka message for handlaggningId " + expectedHandlaggningId + " received on " + requestTopic);
          }
          catch (Exception e)
          {
@@ -236,12 +176,7 @@ public class TemplateContainerSmokeIT
       // Serialize entire payload to JSON
       String eventJson = mapper.writeValueAsString(payload);
 
-      Properties props = new Properties();
-      props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
-      props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-      props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-
-      try (KafkaProducer<String, String> producer = new KafkaProducer<>(props))
+      try (KafkaProducer<String, String> producer = createProducer())
       {
          ProducerRecord<String, String> record = new ProducerRecord<>(
                templateHandlaggningRequestTopic,
@@ -278,12 +213,7 @@ public class TemplateContainerSmokeIT
       // Serialize entire payload to JSON
       String eventJson = mapper.writeValueAsString(payload);
 
-      Properties props = new Properties();
-      props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
-      props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-      props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-
-      try (KafkaProducer<String, String> producer = new KafkaProducer<>(props))
+      try (KafkaProducer<String, String> producer = createProducer())
       {
          ProducerRecord<String, String> record = new ProducerRecord<>(
                topic,
@@ -294,15 +224,23 @@ public class TemplateContainerSmokeIT
       }
    }
 
+   private KafkaProducer<String, String> createProducer()
+   {
+      Properties props = new Properties();
+      props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+      props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+      props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+      return new KafkaProducer<>(props);
+   }
+
    private KafkaConsumer<String, String> createConsumer()
    {
       Properties props = new Properties();
-      props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
-      props.put(ConsumerConfig.GROUP_ID_CONFIG, "test-consumer-" + System.currentTimeMillis());
+      props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+      props.put(ConsumerConfig.GROUP_ID_CONFIG, "test-consumer-" + UUID.randomUUID());
       props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
       props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
       props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
       return new KafkaConsumer<>(props);
    }
-
 }
