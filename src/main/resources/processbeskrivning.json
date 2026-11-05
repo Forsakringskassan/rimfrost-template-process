@@ -3,10 +3,17 @@
   "processnamn": "TODO: Ange processens namn",
   "steg": [
     {
-      "id": "regel",
-      "rubrik": "TODO: Ange stegets rubrik",
-      "beskrivning": "TODO: Beskriv steget så att handläggaren förstår vad som händer.",
-      "aktiviteter": ["a0403d8d-ce42-46b2-967d-e0d2d0fe3a5b"]
+      "id": "fas",
+      "rubrik": "TODO: Ange fasens rubrik",
+      "beskrivning": "TODO: Beskriv fasen så att handläggaren förstår vad som händer.",
+      "steg": [
+        {
+          "id": "regel",
+          "rubrik": "TODO: Ange stegets rubrik",
+          "beskrivning": "TODO: Beskriv steget så att handläggaren förstår vad som händer.",
+          "aktiviteter": ["a0403d8d-ce42-46b2-967d-e0d2d0fe3a5b"]
+        }
+      ]
     }
   ]
 }
