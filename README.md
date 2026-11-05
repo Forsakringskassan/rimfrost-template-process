@@ -34,11 +34,11 @@ Båda delarna är valfria. Ska processen inte ha någon processvy tar du bort `P
 
 ### Understeg
 
-Ett steg kan innehålla understeg i stället för aktiviteter, i högst två nivåer under det översta steget. Mallens exempel har en fas (`fas`) med ett understeg (`regel`) som har mallens enda aktivitet. Ett steg har antingen `steg` eller `aktiviteter`, aldrig båda, och varje aktivitets-ID hör till ett innersta steg. Lägg till fler understeg i fasen när processen har fler aktiviteter, eller gör stegen platta (bara `aktiviteter` på översta nivån) om processen inte behöver understeg. Processvyn räknar status för varje nivå: en fas är `PAGAR` om något understeg pågår, `KLAR` om alla är klara och annars `KOMMANDE`. Smoke-testet `TestProcessvySteg` kontrollerar fasens och understegets id och status, så ändra det när processbeskrivningen ändras.
+Ett steg kan innehålla understeg i stället för aktiviteter, i högst två nivåer under det översta steget. Mallens exempel har steget `fas` med understeget `regel`, som har mallens enda aktivitet. Ett steg har antingen `steg` eller `aktiviteter`, aldrig båda, och varje aktivitets-ID hör till ett innersta steg. Lägg till fler understeg i `fas` när processen har fler aktiviteter, eller gör stegen platta (bara `aktiviteter` på översta nivån) om processen inte behöver understeg. Processvyn räknar status för varje nivå: ett steg med understeg är `PAGAR` om något understeg pågår, `KLAR` om alla är klara och annars `KOMMANDE`. Smoke-testet `TestProcessvySteg` kontrollerar id och status för `fas` och `regel`, så ändra det när processbeskrivningen ändras.
 
 ### Validering i CI
 
-`maven-ci` validerar `processbeskrivning.json` mot ramverkets JSON Schema genom att anropa workflowet `validate-processbeskrivning.yaml` i rimfrost-framework-process. Schemat kontrollerar fälten, att aktivitets-ID:n är UUID och att ett steg har antingen `steg` eller `aktiviteter` i högst tre nivåer. Unika id och att ett aktivitets-ID bara hör till ett steg kontrolleras när processen startar och i `TemplateProcessbeskrivningTest`. Ange samma ref av ramverket i `uses:` och `framework-ref`.
+`maven-ci` validerar `processbeskrivning.json` mot ramverkets JSON Schema genom att anropa workflowet `validate-processbeskrivning.yaml` i rimfrost-framework-process. Schemat kontrollerar fälten och att inga andra fält finns, att aktivitets-ID:n är UUID, att ett steg har antingen `steg` eller `aktiviteter` och att det finns högst tre nivåer. Unika id och att ett aktivitets-ID bara hör till ett steg kontrolleras när processen startar och i `TemplateProcessbeskrivningTest`. Ange samma ref av ramverket i `uses:` och `framework-ref`.
 
 ## Bygg projektet
 

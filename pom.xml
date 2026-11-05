@@ -20,6 +20,7 @@
     <kogito.bom.artifact-id>kogito-bom</kogito.bom.artifact-id>
     <kogito.bom.version>999-SNAPSHOT</kogito.bom.version>
     <version.org.kie.kogito>999-SNAPSHOT</version.org.kie.kogito>
+    <!-- TODO Change to the released rimfrost-framework-process version when FKPOC-1306 and FKPOC-1307 are released -->
     <rimfrost-framework-process.version>1.0.0-SNAPSHOT</rimfrost-framework-process.version>
   </properties>
 
