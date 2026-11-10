@@ -30,7 +30,33 @@ En process kan ha en processvy (stegindikatorn) som visar handläggaren var i pr
 
 Anpassa länken och processbeskrivningen till processen. Varje aktivitets-ID i BPMN-filen ska höra till ett steg, och `TemplateProcessbeskrivningTest` går sönder om något saknas. Mallens BPMN-fil heter `template_process.bpmn` så att den inte krockar med `template.bpmn` i mallens regelunderprocess, som också hamnar på classpathen. Formatet beskrivs i [rimfrost-framework-process](https://github.com/Forsakringskassan/rimfrost-framework-process#processvy).
 
-Båda delarna är valfria. Ska processen inte ha någon processvy tar du bort `processvy.url`, `processbeskrivning.json` och `TemplateProcessbeskrivningTest`, testet `TestProcessvySteg` och kontrollerna av `processvyUrl` i `TemplateContainerSmokeIT`, och beroendet till framework-process test-jar (`<classifier>tests</classifier>`) i `pom.xml`. Processen startar och skickar regelanrop som vanligt, bara utan processvy.
+Båda delarna är valfria. Ska processen inte ha någon processvy tar du bort `processvy.url`, `processbeskrivning.json` och `TemplateProcessbeskrivningTest`, testet `TestProcessvySteg` och kontrollerna av `processvyUrl` i `TemplateSmokeTest`, och beroendet till framework-process test-jar (`<classifier>tests</classifier>`) i `pom.xml`. Processen startar och skickar regelanrop som vanligt, bara utan processvy.
+
+## Persistens
+
+Processinstanserna sparas i en PostgreSQL-databas med Kogitos JDBC-persistens
+(`kie-addons-quarkus-persistence-jdbc`). Det gör att pågående handläggningar
+överlever omstarter av tjänsten och kan fortsätta när svar från underprocesser
+kommer in.
+
+Konfigurationen finns i `src/main/resources/application.properties`:
+
+| Property | Beskrivning |
+|---|---|
+| `kogito.persistence.type=jdbc` | Aktiverar JDBC-persistens av processinstanser. |
+| `kogito.persistence.proto.marshaller=false` | Processvariabler serialiseras utan protobuf-schema. |
+| `kogito.persistence.query.timeout.millis` | Timeout för databasfrågor. |
+| `kie.flyway.enabled=true` | Kogitos tabeller skapas och migreras av Flyway vid uppstart (`kie-addons-quarkus-flyway`). |
+| `quarkus.datasource.db-kind=postgresql` | Databastyp. |
+
+I prod-profilen läses anslutningen från miljövariabler som måste sättas när tjänsten startas.
+I dev- och test-profilerna startar Quarkus Dev Services en PostgreSQL-container automatiskt.
+
+| Miljövariabel | Beskrivning |
+|---|---|
+| `DB_URL` | JDBC-url, t.ex. `jdbc:postgresql://host:5432/databas` |
+| `DB_USERNAME` | Databasanvändare |
+| `DB_PASSWORD` | Lösenord för databasanvändaren |
 
 ## Bygg projektet
 
