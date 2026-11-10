@@ -62,7 +62,7 @@ public class TemplateContainerSmokeIT
    private static final String smallryeKafkaBootstrapServers = networkAlias + ":9093";
    private static Network network = Network.newNetwork();
 
-   //TODO Change to match PROCESSVY_URL in application.properties
+   //TODO Change to match processvy.url in application.properties
    private static final String processvyUrl = "/process/template";
    //TODO Change to processId in processbeskrivning.json
    private static final String processId = "template";
