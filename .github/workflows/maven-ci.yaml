@@ -4,7 +4,15 @@ on: [workflow_dispatch, workflow_call, push, pull_request]
 
 jobs:
   call-workflow:
-    uses: Forsakringskassan/.github/.github/workflows/bundle-maven-ci.yaml@625efb1a02018d86c0a2ce616074a8c61af97ae9 # main
-    secrets:
-      PACKAGES_RW_ACTOR: ${{ secrets.PACKAGES_RW_ACTOR }}
-      PACKAGES_RW_TOKEN: ${{ secrets.PACKAGES_RW_TOKEN }}
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+      packages: write
+    uses: Forsakringskassan/.github/.github/workflows/bundle-maven-ci.yaml@cbc0db833d2d0584b3b0e3b7ed4fd27867b3f6ed # main
+
+  # TODO Remove this job if the process has no processvy
+  validate-processbeskrivning:
+    uses: Forsakringskassan/rimfrost-framework-process/.github/workflows/validate-processbeskrivning.yaml@ac7c171aeae8c04140eaa86635aecdf01acfb130 # 2.1.0
+    with:
+      framework-ref: '2.1.0'

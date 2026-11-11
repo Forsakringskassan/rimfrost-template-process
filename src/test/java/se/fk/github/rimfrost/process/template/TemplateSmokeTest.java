@@ -35,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
@@ -116,7 +115,11 @@ class TemplateSmokeTest
             .then()
             .statusCode(200)
             .body("processId", equalTo(processId))
-            .body("steg.status", hasItem("PAGAR"));
+            //TODO Change to match the steg and understeg in processbeskrivning.json
+            .body("steg[0].id", equalTo("fas"))
+            .body("steg[0].status", equalTo("PAGAR"))
+            .body("steg[0].steg[0].id", equalTo("regel"))
+            .body("steg[0].steg[0].status", equalTo("PAGAR"));
    }
 
    /**
