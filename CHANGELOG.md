@@ -2,6 +2,43 @@
 
 Changelog of rimfrost-template-process.
 
+## 1.2.0 (2026-11-11)
+
+### Features
+
+-  add processvy-länk and example processbeskrivning (FKPOC-1157) ([827bb](https://github.com/Forsakringskassan/rimfrost-template-process/commit/827bb282778c32f) LisaWedin_Ductus)  
+
+### Bug Fixes
+
+-  add group id config to handlaggning-requests ([f0b4b](https://github.com/Forsakringskassan/rimfrost-template-process/commit/f0b4ba5a55a9c13) Nils Elveros)  
+-  bump rimfrost-template-regel-subprocess to 1.1.5 (FKPOC-1157) ([6665a](https://github.com/Forsakringskassan/rimfrost-template-process/commit/6665aaaa1d24de4) LisaWedin_Ductus)  
+-  rename PROCESSVY_URL property to processvy.url (FKPOC-1157) ([15552](https://github.com/Forsakringskassan/rimfrost-template-process/commit/155526104639835) LisaWedin_Ductus)  
+-  pin kogito to released 10.2.0 ([7855b](https://github.com/Forsakringskassan/rimfrost-template-process/commit/7855b4ed4704b6c) LisaWedin_Ductus)  
+-  **deps**  update dependency se.fk.github.rimfrost.regel.subprocess:rimfrost-template-regel-subprocess to v1.1.4 ([e17b3](https://github.com/Forsakringskassan/rimfrost-template-process/commit/e17b399096202cb) renovate[bot])  
+-  add persistence configuration ([19864](https://github.com/Forsakringskassan/rimfrost-template-process/commit/19864bb2851e271) Nils Elveros)  
+-  address review comments (FKPOC-1157) ([508ae](https://github.com/Forsakringskassan/rimfrost-template-process/commit/508ae9610d3dfdb) LisaWedin_Ductus)  
+-  **deps**  update dependency se.fk.github.rimfrost.regel.subprocess:rimfrost-template-regel-subprocess to v1.1.3 ([2d9b8](https://github.com/Forsakringskassan/rimfrost-template-process/commit/2d9b8b1f5ccac36) renovate[bot])  
+
+### Dependency updates
+
+- update forsakringskassan/.github digest to 625efb1 ([d3b30](https://github.com/Forsakringskassan/rimfrost-template-process/commit/d3b301e63cb0a87) renovate[bot])  
+- update dependency org.apache.maven.plugins:maven-failsafe-plugin to v3.6.1 ([38a81](https://github.com/Forsakringskassan/rimfrost-template-process/commit/38a8186766917fa) renovate[bot])  
+- update forsakringskassan/.github digest to cbd74f1 ([c4a59](https://github.com/Forsakringskassan/rimfrost-template-process/commit/c4a5946ce383a3e) renovate[bot])  
+- update forsakringskassan/.github digest to bfb01f7 ([3a10d](https://github.com/Forsakringskassan/rimfrost-template-process/commit/3a10dd56a077ffb) renovate[bot])  
+### Other changes
+
+**Merge remote-tracking branch 'origin/main' into feat/FKPOC-1157-processvy**
+
+* # Conflicts: 
+* #	README.md 
+* #	pom.xml 
+* #	src/test/java/se/fk/github/rimfrost/process/template/TemplateSmokeTest.java 
+
+[14adc](https://github.com/Forsakringskassan/rimfrost-template-process/commit/14adc85b5d1a722) LisaWedin_Ductus *2026-11-10 15:11:54*
+
+
+## rimfrost-1_2 (2026-09-23)
+
 ## 1.1.2 (2026-09-23)
 
 ### Bug Fixes
