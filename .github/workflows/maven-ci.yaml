@@ -10,8 +10,7 @@ jobs:
       PACKAGES_RW_TOKEN: ${{ secrets.PACKAGES_RW_TOKEN }}
 
   # TODO Remove this job if the process has no processvy
-  # TODO Pin uses to a released rimfrost-framework-process SHA (# <tag>) when FKPOC-1307 is released, and use the same release in framework-ref
   validate-processbeskrivning:
-    uses: Forsakringskassan/rimfrost-framework-process/.github/workflows/validate-processbeskrivning.yaml@feat/FKPOC-1307-processbeskrivning-schema
+    uses: Forsakringskassan/rimfrost-framework-process/.github/workflows/validate-processbeskrivning.yaml@ac7c171aeae8c04140eaa86635aecdf01acfb130 # 2.1.0
     with:
-      framework-ref: feat/FKPOC-1307-processbeskrivning-schema
+      framework-ref: '2.1.0'
