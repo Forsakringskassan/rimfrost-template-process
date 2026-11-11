@@ -33,6 +33,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
@@ -55,6 +58,13 @@ class TemplateSmokeTest
    private static final String kompletteringResponseMessageType = TestConfig
          .get("template.regel.komplettering.responses.messageType");
 
+   //TODO Change to match processvy.url in application.properties
+   private static final String processvyUrl = "/process/template";
+   //TODO Change to processId in processbeskrivning.json
+   private static final String processId = "template";
+   //TODO Change to an aktivitets-ID from the process's BPMN file
+   private static final String aktivitetId = "a0403d8d-ce42-46b2-967d-e0d2d0fe3a5b";
+
    @ConfigProperty(name = "kafka.bootstrap.servers")
    String bootstrapServers;
 
@@ -74,6 +84,7 @@ class TemplateSmokeTest
       var kompletteringRequest = readKafkaMessage(kompletteringRequestTopic, handlaggningId);
       var kompletteringRequestMessagePayload = mapper.readValue(kompletteringRequest, RegelRequestMessagePayload.class);
       assertEquals(handlaggningId, kompletteringRequestMessagePayload.getData().getHandlaggningId());
+      assertEquals(processvyUrl, kompletteringRequestMessagePayload.getData().getProcessvyUrl());
 
       // Wait for kafka responder to complete
       responderKomplettering.get(topicTimeout, TimeUnit.SECONDS);
@@ -82,6 +93,7 @@ class TemplateSmokeTest
       var regelRequest = readKafkaMessage(regelRequestTopic, handlaggningId);
       var regelRequestMessagePayload = mapper.readValue(regelRequest, RegelRequestMessagePayload.class);
       assertEquals(handlaggningId, regelRequestMessagePayload.getData().getHandlaggningId());
+      assertEquals(processvyUrl, regelRequestMessagePayload.getData().getProcessvyUrl());
 
       // Wait for kafka responder to complete
       responderRegel.get(topicTimeout, TimeUnit.SECONDS);
@@ -91,6 +103,20 @@ class TemplateSmokeTest
       var handlaggningResponseMessagePayload = mapper.readValue(processResponse, HandlaggningResponseMessagePayload.class);
       assertEquals(handlaggningId, handlaggningResponseMessagePayload.getData().getHandlaggningId());
       assertEquals("GODKÄND", handlaggningResponseMessagePayload.getData().getResultat());
+   }
+
+   //TODO Remove this test if the process has no processvy
+   @Test
+   void TestProcessvySteg()
+   {
+      given()
+            .queryParam("aktivitetId", aktivitetId)
+            .when()
+            .get("/processvy/steg")
+            .then()
+            .statusCode(200)
+            .body("processId", equalTo(processId))
+            .body("steg.status", hasItem("PAGAR"));
    }
 
    /**
