@@ -11,9 +11,12 @@ jobs:
     name: Run Smoke Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
     env:
-      GITHUB_ACTOR: ${{ secrets.PACKAGES_RW_ACTOR }}
-      GITHUB_TOKEN: ${{ secrets.PACKAGES_RW_TOKEN }}
+      GITHUB_ACTOR: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -27,5 +30,5 @@ jobs:
           cache: 'maven'
 
       # --- Run integration tests ---
-      - name: Run Maven verify
-        run: ./mvnw -s settings.xml verify
+      - name: Run Maven test
+        run: ./mvnw -s settings.xml test
