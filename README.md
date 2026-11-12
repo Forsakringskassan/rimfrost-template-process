@@ -38,7 +38,7 @@ Ett steg kan innehålla understeg i stället för aktiviteter, i högst två niv
 
 ### Validering
 
-`TemplateProcessbeskrivningTest` validerar `processbeskrivning.json` med ramverkets inläsare, samma som läser filen när processen startar, och körs med de andra testerna i bygget och i `maven-ci`. Inläsaren kontrollerar fälten och att inga andra fält finns, att aktivitets-ID:n är UUID, att ett steg har antingen `steg` eller `aktiviteter`, att det finns högst tre nivåer, att id är unika och att ett aktivitets-ID bara hör till ett steg. Testet kontrollerar dessutom att `processId` stämmer med BPMN-filen och att varje aktivitets-ID i BPMN-filen hör till ett innersta steg. Valideringen följer ramverksversionen i `pom.xml` och behöver inte uppdateras separat. JSON Schemat i rimfrost-framework-process beskriver formatet för en framtida generator av processbeskrivningar och används inte av processen.
+`TemplateProcessbeskrivningTest` validerar `processbeskrivning.json` med ramverkets inläsare, samma som läser filen när processen startar, och körs med de andra testerna i bygget och i `maven-ci`. Inläsaren kontrollerar att de obligatoriska fälten finns och att inga andra fält finns, att aktivitets-ID:n är UUID, att ett steg har antingen `steg` eller `aktiviteter`, att det finns högst tre nivåer, att id är unika och att ett aktivitets-ID bara hör till ett steg. Testet kontrollerar dessutom att `processId` stämmer med BPMN-filen och att varje aktivitets-ID i BPMN-filen hör till ett innersta steg. Valideringen följer ramverksversionen i `pom.xml` och behöver inte uppdateras separat. JSON-schemat i rimfrost-framework-process beskriver formatet för en framtida generator av processbeskrivningar och används inte av processen.
 
 ## Persistens
 
