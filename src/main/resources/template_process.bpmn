@@ -103,8 +103,8 @@
     </bpmn2:exclusiveGateway>
     <bpmn2:serviceTask id="_71B6AF19-94F1-440F-8A60-77D8AEF53205" name="Handle error" drools:serviceinterface="se.fk.rimfrost.framework.process.ProcessService" operationRef="_88F93278-61C5-44B2-A197-615AD1F715E1" drools:serviceoperation="endProcessWithError">
       <bpmn2:extensionElements>
-        <drools:onEntry-script scriptFormat="">
-          <drools:script>sharedErrorInfo = regelResult.getError();</drools:script>
+        <drools:onEntry-script scriptFormat="http://www.java.com/java">
+          <drools:script>kcontext.setVariable("sharedErrorInfo", regelResult.getError());</drools:script>
         </drools:onEntry-script>
       </bpmn2:extensionElements>
       <bpmn2:incoming>_693C714C-F1DE-4BDA-9684-2802FB972354</bpmn2:incoming>

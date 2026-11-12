@@ -23,6 +23,7 @@ import se.fk.rimfrost.framework.regel.RegelRequestMessagePayloadData;
 import se.fk.rimfrost.framework.regel.RegelResponseMessagePayload;
 import se.fk.rimfrost.framework.regel.RegelResponseMessagePayloadData;
 import se.fk.rimfrost.framework.regel.Utfall;
+import se.fk.rimfrost.framework.regel.oul.RegelOulCancelledMessagePayload;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -56,6 +57,8 @@ class TemplateSmokeTest
    private static final String kompletteringResponseTopic = TestConfig.get("template.regel.komplettering.responses.topic");
    private static final String kompletteringResponseMessageType = TestConfig
          .get("template.regel.komplettering.responses.messageType");
+   private static final String regelOulCancelledTopic = TestConfig.get("template.regel.oul.cancelled.topic");
+   private static final String kompletteringOulCancelledTopic = TestConfig.get("template.regel.komplettering.oul.cancelled.topic");
 
    //TODO Change to match processvy.url in application.properties
    private static final String processvyUrl = "/process/template";
@@ -102,6 +105,64 @@ class TemplateSmokeTest
       var handlaggningResponseMessagePayload = mapper.readValue(processResponse, HandlaggningResponseMessagePayload.class);
       assertEquals(handlaggningId, handlaggningResponseMessagePayload.getData().getHandlaggningId());
       assertEquals("GODKÄND", handlaggningResponseMessagePayload.getData().getResultat());
+   }
+
+   @Test
+   void TestKompletteringTimeoutSendsOulCancelled() throws Exception
+   {
+      var handlaggningId = UUID.randomUUID().toString();
+
+      // Send Handlaggning request to start workflow
+      sendProcessHandlaggningRequest(handlaggningId, "A2");
+
+      // Verify komplettering request is produced, but never answer it so the subprocess times out
+      var kompletteringRequest = readKafkaMessage(kompletteringRequestTopic, handlaggningId);
+      var kompletteringRequestMessagePayload = mapper.readValue(kompletteringRequest, RegelRequestMessagePayload.class);
+      assertEquals(handlaggningId, kompletteringRequestMessagePayload.getData().getHandlaggningId());
+
+      // Verify the subprocess publishes an OUL cancelled message after the timeout
+      var cancelled = readKafkaMessage(kompletteringOulCancelledTopic, handlaggningId);
+      var cancelledPayload = mapper.readValue(cancelled, RegelOulCancelledMessagePayload.class);
+      assertEquals(handlaggningId, cancelledPayload.getData().getHandlaggningId());
+
+      // Verify the process ends with a timeout error
+      var processResponse = readKafkaMessage(templateHandlaggningResponseTopic, handlaggningId);
+      var handlaggningResponseMessagePayload = mapper.readValue(processResponse, HandlaggningResponseMessagePayload.class);
+      assertEquals(handlaggningId, handlaggningResponseMessagePayload.getData().getHandlaggningId());
+      assertEquals("FEL", handlaggningResponseMessagePayload.getData().getResultat());
+      assertEquals("TIMEOUT", handlaggningResponseMessagePayload.getData().getError().getFelkod());
+   }
+
+   @Test
+   void TestRegelSubprocessTimeoutSendsOulCancelled() throws Exception
+   {
+      var handlaggningId = UUID.randomUUID().toString();
+      // Answer komplettering so the flow reaches the regel subprocess
+      var responderKomplettering = startKafkaResponder(kompletteringRequestTopic, kompletteringResponseTopic,
+            kompletteringResponseMessageType, Utfall.JA, handlaggningId);
+
+      // Send Handlaggning request to start workflow
+      sendProcessHandlaggningRequest(handlaggningId, "A3");
+
+      // Wait for kafka responder to complete
+      responderKomplettering.get(topicTimeout, TimeUnit.SECONDS);
+
+      // Verify regel request is produced, but never answer it so the regel subprocess times out
+      var regelRequest = readKafkaMessage(regelRequestTopic, handlaggningId);
+      var regelRequestMessagePayload = mapper.readValue(regelRequest, RegelRequestMessagePayload.class);
+      assertEquals(handlaggningId, regelRequestMessagePayload.getData().getHandlaggningId());
+
+      // Verify the regel subprocess publishes an OUL cancelled message after the timeout
+      var cancelled = readKafkaMessage(regelOulCancelledTopic, handlaggningId);
+      var cancelledPayload = mapper.readValue(cancelled, RegelOulCancelledMessagePayload.class);
+      assertEquals(handlaggningId, cancelledPayload.getData().getHandlaggningId());
+
+      // Verify the process ends with a timeout error
+      var processResponse = readKafkaMessage(templateHandlaggningResponseTopic, handlaggningId);
+      var handlaggningResponseMessagePayload = mapper.readValue(processResponse, HandlaggningResponseMessagePayload.class);
+      assertEquals(handlaggningId, handlaggningResponseMessagePayload.getData().getHandlaggningId());
+      assertEquals("FEL", handlaggningResponseMessagePayload.getData().getResultat());
+      assertEquals("TIMEOUT", handlaggningResponseMessagePayload.getData().getError().getFelkod());
    }
 
    //TODO Remove this test if the process has no processvy

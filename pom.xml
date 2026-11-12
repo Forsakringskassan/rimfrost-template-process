@@ -20,7 +20,7 @@
     <kogito.bom.artifact-id>kogito-bom</kogito.bom.artifact-id>
     <kogito.bom.version>10.2.0</kogito.bom.version>
     <version.org.kie.kogito>10.2.0</version.org.kie.kogito>
-    <rimfrost-framework-process.version>2.1.0</rimfrost-framework-process.version>
+    <rimfrost-framework-process.version>2.1.1</rimfrost-framework-process.version>
   </properties>
 
   <dependencyManagement>
@@ -103,7 +103,7 @@
     <dependency>
       <groupId>se.fk.github.rimfrost.regel.subprocess</groupId>
       <artifactId>rimfrost-template-regel-subprocess</artifactId>
-      <version>1.1.5</version>
+      <version>1.1.7</version>
     </dependency>
 
     <dependency>
