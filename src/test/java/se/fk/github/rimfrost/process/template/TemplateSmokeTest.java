@@ -58,7 +58,8 @@ class TemplateSmokeTest
    private static final String kompletteringResponseMessageType = TestConfig
          .get("template.regel.komplettering.responses.messageType");
    private static final String regelOulCancelledTopic = TestConfig.get("template.regel.oul.cancelled.topic");
-   private static final String kompletteringOulCancelledTopic = TestConfig.get("template.regel.komplettering.oul.cancelled.topic");
+   private static final String kompletteringOulCancelledTopic = TestConfig
+         .get("template.regel.komplettering.oul.cancelled.topic");
 
    //TODO Change to match processvy.url in application.properties
    private static final String processvyUrl = "/process/template";
