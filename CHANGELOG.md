@@ -2,6 +2,40 @@
 
 Changelog of rimfrost-template-process.
 
+## 1.3.0 (2026-11-20)
+
+### Features
+
+-  add understeg to example processbeskrivning (FKPOC-1308) ([3e70a](https://github.com/Forsakringskassan/rimfrost-template-process/commit/3e70ab22d4e864b) LisaWedin_Ductus)  
+
+### Bug Fixes
+
+-  bump rimfrost-template-regel-subprocess 1.1.4→1.2.1 and rimfrost-framework-process 1.6.4→2.1.1 ([f5f24](https://github.com/Forsakringskassan/rimfrost-template-process/commit/f5f243888b11799) Ulf Slunga)  
+-  **deps**  update dependency se.fk.rimfrost.framework.regel:rimfrost-framework-regel-asyncapi to v1.2.3 ([b07de](https://github.com/Forsakringskassan/rimfrost-template-process/commit/b07debfc389adaa) renovate[bot])  
+-  spotless ([c4663](https://github.com/Forsakringskassan/rimfrost-template-process/commit/c4663afad056d7d) Nils Elveros)  
+-  Update to use the subprocess that sends oul cancel if timeout ([eefc8](https://github.com/Forsakringskassan/rimfrost-template-process/commit/eefc8e2792f9ef7) Nils Elveros)  
+-  **deps**  update dependency se.fk.rimfrost.framework.process:rimfrost-framework-process to v2.1.1 ([1612e](https://github.com/Forsakringskassan/rimfrost-template-process/commit/1612e0165b37d48) renovate[bot])  
+-  address review comments (FKPOC-1335) ([3e82a](https://github.com/Forsakringskassan/rimfrost-template-process/commit/3e82a2d6643d02b) LisaWedin_Ductus)  
+-  **deps**  use released rimfrost-framework-process 2.1.0 (FKPOC-1308) ([c532e](https://github.com/Forsakringskassan/rimfrost-template-process/commit/c532ee004d6e5a0) LisaWedin_Ductus)  
+-  address review comments (FKPOC-1308) ([acdbf](https://github.com/Forsakringskassan/rimfrost-template-process/commit/acdbfbc6d771984) LisaWedin_Ductus)  
+
+### Other changes
+
+**Update pom.xml**
+
+* Co-authored-by: larpersso &lt;254442132+larpersso@users.noreply.github.com&gt; 
+
+[89b9b](https://github.com/Forsakringskassan/rimfrost-template-process/commit/89b9bd6ad4c6176) NilsElveros *2026-11-13 06:33:51*
+
+**Merge remote-tracking branch 'origin/main' into feat/FKPOC-1308-understeg**
+
+* # Conflicts: 
+* #	README.md 
+* #	pom.xml 
+
+[c4d1f](https://github.com/Forsakringskassan/rimfrost-template-process/commit/c4d1f5746ce9f84) LisaWedin_Ductus *2026-11-11 14:23:52*
+
+
 ## 1.2.0 (2026-11-11)
 
 ### Features
